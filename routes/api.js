@@ -39,7 +39,6 @@ module.exports = function (app) {
                   .sort({ bumped_on: -1 })
                   .limit(threadLimit)
                   .populate({path: 'replies', select: '-delete_password -reported'});
-          
           response.json(threads);
         } catch(e){
           console.log('ERROR GET /api/threads/:board', e)
