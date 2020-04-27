@@ -1,123 +1,125 @@
+const old_date = new Date('1990-01-01')
+
 const test_threads = [
   {
     board: "apitest",
     title: "apitest delete thread title #1",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #2",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #3",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #4",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #5",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #6",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #7",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #8",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #9",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #10",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #11",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #12",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #13",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #14",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   },
   {
     board: "apitest",
     title: "apitest delete thread title #15",
     text: "apitest delete thread text",
     delete_password: "apitest",
-    created_on: new Date(),
-    bumped_on: new Date()
+    created_on: old_date,
+    bumped_on: old_date
   }
 ];
 

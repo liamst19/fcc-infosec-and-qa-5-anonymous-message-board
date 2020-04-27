@@ -20,6 +20,7 @@ const { test_threads, test_replies } = require('./test-helper')
 chai.use(chaiHttp);
 
 suite("Functional Tests", function() {
+  let replyThreadId;
   before(done => {
     Reply.remove({}, err => {
       console.log("replies removed");
@@ -27,15 +28,14 @@ suite("Functional Tests", function() {
         console.log("threads removed");
         Thread.insertMany(test_threads, (err, threads) => {
           console.log('test threads inserted')
-          const replies = threads.reduce((arr, t) => {
-            return [...arr, ...test_replies.map(r => ({...r, thread_id: t._id}))]
-          }, [])
+          replyThreadId = threads[0]._id;
+          const replies = test_replies.map(r => ({...r, thread_id: replyThreadId}))
           Reply.insertMany(replies, (err, replies) => {
             console.log('test replies inserted')
-            Thread.find({}).limit(20).populate('replies').exec((err, ts) => {
-              console.log('inserted threads', ts)
+            const reply_ids = replies.map(r => r._id);
+            Thread.findByIdAndUpdate(replyThreadId, { bumped_on: new Date(), replies: reply_ids }, (err, thread) => {
+              done();
             })
-            done();
           })
         })
       });
@@ -109,8 +109,7 @@ suite("Functional Tests", function() {
             // Replies
             assert.isArray(res.body[0].replies);
             assert.isAtMost(res.body[0].replies.length, 3);
-            if (res.body[0].replies.length > 0) {
-              
+            if (res.body[0].replies.length > 0) {              
               console.log('thread', res.body[0].replies)
               assert.property(res.body[0].replies[0], "_id", "");
               assert.property(res.body[0].replies[0], "thread_id", "");
