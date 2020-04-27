@@ -267,7 +267,7 @@ module.exports = function (app) {
     
         if(!board) return response.status(400).send('no board specified')
         else if(!reply_id) return response.status(400).send('no reply id');
-        else if(!delete_password)
+        else if(!delete_password) return response.status(401).send('no password');
     
         try{
           
