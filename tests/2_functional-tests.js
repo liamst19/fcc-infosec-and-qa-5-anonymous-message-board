@@ -88,7 +88,8 @@ suite("Functional Tests", function() {
     });
 
     suite("DELETE", function() {
-      test("successful deletion", done => {
+      let thread_id;
+      beforeEach(done => {
         const newThread = new Thread({
           board: "apitest",
           title: "apitest delete thread title",
@@ -98,113 +99,70 @@ suite("Functional Tests", function() {
           bumped_on: new Date()
         });
         newThread.save((err, thread) => {
-          if (err) {
-            console.log("error creating thread", err);
-            done();
-          }
-
-          chai
-            .request(server)
-            .delete("/api/threads/apitest")
-            .send({
-              thread_id: thread._id,
-              delete_password: "apitest"
-            })
-            .end(function(err, res) {
-              assert.equal(res.status, 204);
-              done();
-            });
+          thread_id = thread._id;
+          done();
         });
+      });
+
+      test("successful deletion", done => {
+        chai
+          .request(server)
+          .delete("/api/threads/apitest")
+          .send({
+            thread_id: thread_id,
+            delete_password: "apitest"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 204);
+            done();
+          });
       });
 
       test("invalid thread", done => {
-        const newThread = new Thread({
-          board: "apitest",
-          title: "apitest delete thread title",
-          text: "apitest delete thread text",
-          delete_password: "apitest",
-          created_on: new Date(),
-          bumped_on: new Date()
-        });
-        newThread.save((err, thread) => {
-          if (err) {
-            console.log("error creating thread", err);
+        chai
+          .request(server)
+          .delete("/api/threads/apitest")
+          .send({
+            thread_id: "5ea6ccd02addf93f50487ccf",
+            delete_password: "wrong password"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 400);
             done();
-          }
-
-          chai
-            .request(server)
-            .delete("/api/threads/apitest")
-            .send({
-              thread_id: "5ea6ccd02addf93f50487ccf",
-              delete_password: "wrong password"
-            })
-            .end(function(err, res) {
-              assert.equal(res.status, 400);
-              done();
-            });
-        });
+          });
       });
 
       test("incorrect password", done => {
-        const newThread = new Thread({
-          board: "apitest",
-          title: "apitest delete thread title",
-          text: "apitest delete thread text",
-          delete_password: "apitest",
-          created_on: new Date(),
-          bumped_on: new Date()
-        });
-        newThread.save((err, thread) => {
-          if (err) {
-            console.log("error", err);
+        chai
+          .request(server)
+          .delete("/api/threads/apitest")
+          .send({
+            thread_id: thread_id,
+            delete_password: "wrong password"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 401);
             done();
-          }
-
-          chai
-            .request(server)
-            .delete("/api/threads/apitest")
-            .send({
-              thread_id: thread._id,
-              delete_password: "wrong password"
-            })
-            .end(function(err, res) {
-              assert.equal(res.status, 401);
-              done();
-            });
-        });
+          });
       });
 
       test("no password", done => {
-        const newThread = new Thread({
-          board: "apitest",
-          title: "apitest delete thread title",
-          text: "apitest delete thread text",
-          delete_password: "apitest",
-          created_on: new Date(),
-          bumped_on: new Date()
-        });
-        newThread.save((err, thread) => {
-          if (err) {
-            console.log("error", err);
+        chai
+          .request(server)
+          .delete("/api/threads/apitest")
+          .send({
+            thread_id: "5ea6ccd02addf93f50487ccf"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 401);
             done();
-          }
-          chai
-            .request(server)
-            .delete("/api/threads/apitest")
-            .send({
-              thread_id: "5ea6ccd02addf93f50487ccf"
-            })
-            .end(function(err, res) {
-              assert.equal(res.status, 401);
-              done();
-            });
-        });
+          });
       });
     });
 
     suite("PUT", function() {
-      test("successful update", done => {
+      let thread_id;
+      before(done => {
         const newThread = new Thread({
           board: "apitest",
           title: "apitest delete thread title",
@@ -214,21 +172,22 @@ suite("Functional Tests", function() {
           bumped_on: new Date()
         });
         newThread.save((err, thread) => {
-          if (err) {
-            console.log("error", err);
-            done();
-          }
+          thread_id = thread._id;
+          done();
+        });
+      });
+      
+      test("successful update", done => {
           chai
             .request(server)
             .put("/api/threads/apitest")
             .send({
-              thread_id: thread._id
+              thread_id: thread_id
             })
             .end(function(err, res) {
               assert.equal(res.status, 200);
               done();
             });
-        });
       });
       test("invalid thread id", done => {
         const newThread = new Thread({
@@ -248,7 +207,7 @@ suite("Functional Tests", function() {
             .request(server)
             .put("/api/threads/apitest")
             .send({
-              thread_id:  "5ea6ccd02addf93f50487ccf"
+              thread_id: "5ea6ccd02addf93f50487ccf"
             })
             .end(function(err, res) {
               assert.equal(res.status, 400);
