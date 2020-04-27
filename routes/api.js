@@ -29,7 +29,7 @@ module.exports = function (app) {
      .get(async (request, response, next) => {
         const threadLimit = 10;
         const replyLimit = 3;
-        console.log('get', {board: request.params.board})
+    
         const board = request.params.board;
         if(!board) return response.status(400).send('no board specified')
     
@@ -62,6 +62,11 @@ module.exports = function (app) {
         if(!board) return response.status(400).send('no board specified')
     
         const body = request.body;
+    
+        // validate
+        if(!body.title || !body.text || !body.delete_password){
+          return response.status(400).send('there is one or more missing required fields')
+        }
 
         try{
           const newThread = new Thread({
