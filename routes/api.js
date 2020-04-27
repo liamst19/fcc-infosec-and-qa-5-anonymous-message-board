@@ -35,10 +35,11 @@ module.exports = function (app) {
     
         try{
           const threads = await Thread
-                  .find({ board }, '-delete_password -reported' ,{ replies: { $slice: -1 * replyLimit }})
+                  .find({ board }, '-delete_password -reported' , { replies: { $slice: -1 * replyLimit }})
                   .sort({ bumped_on: -1 })
                   .limit(threadLimit)
                   .populate({path: 'replies', select: '-delete_password -reported'});
+          console.log(threads)
           response.json(threads);
         } catch(e){
           console.log('ERROR GET /api/threads/:board', e)

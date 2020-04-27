@@ -1,4 +1,4 @@
-const old_date = new Date('1990-01-01')
+const old_date = new Date('December 17, 1995 03:24:00');
 
 const test_threads = [
   {
@@ -125,67 +125,67 @@ const test_threads = [
 
 const test_replies = [
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #1',
     delete_password: 'apitest' // hash?
   },
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #2',
     delete_password: 'apitest' // hash?
   },
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #3',
     delete_password: 'apitest' // hash?
   },
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #4',
     delete_password: 'apitest' // hash?
   },
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #5',
     delete_password: 'apitest' // hash?
   },
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #6',
     delete_password: 'apitest' // hash?
   },
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #7',
     delete_password: 'apitest' // hash?
   },
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #8',
     delete_password: 'apitest' // hash?
   },
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #9',
     delete_password: 'apitest' // hash?
   },
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #10',
     delete_password: 'apitest' // hash?
   },
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #11',
     delete_password: 'apitest' // hash?
   },
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #12',
     delete_password: 'apitest' // hash?
   },
   {
-    created_on: new Date(),
+    created_on: old_date,
     text: 'thread reply #13',
     delete_password: 'apitest' // hash?
   }

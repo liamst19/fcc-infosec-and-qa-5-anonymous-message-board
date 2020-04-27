@@ -20,7 +20,6 @@ const { test_threads, test_replies } = require('./test-helper')
 chai.use(chaiHttp);
 
 suite("Functional Tests", function() {
-  let replyThreadId;
   before(done => {
     Reply.remove({}, err => {
       console.log("replies removed");
@@ -28,12 +27,12 @@ suite("Functional Tests", function() {
         console.log("threads removed");
         Thread.insertMany(test_threads, (err, threads) => {
           console.log('test threads inserted')
-          replyThreadId = threads[0]._id;
-          const replies = test_replies.map(r => ({...r, thread_id: replyThreadId}))
+          const replyThreadId = threads[0]._id;
+          const replies = test_replies.map(r => ({...r, thread_id: replyThreadId, created_on: Date.now()}))
           Reply.insertMany(replies, (err, replies) => {
             console.log('test replies inserted')
             const reply_ids = replies.map(r => r._id);
-            Thread.findByIdAndUpdate(replyThreadId, { bumped_on: new Date(), replies: reply_ids }, (err, thread) => {
+            Thread.findByIdAndUpdate(replyThreadId, { bumped_on: Date.now(), replies: reply_ids }, { new: true }, (err, thread) => {
               done();
             })
           })
@@ -88,10 +87,20 @@ suite("Functional Tests", function() {
           .get("/api/threads/apitest")
           .query({})
           .end((err, res) => {
+          
+          /*
+            console.log('threads', 
+                        res.body.map(t => ({
+              id: t._id,
+              title: t.title,
+              dt: t.bumped_on, 
+              cnt: t.replies.length}))) */
+          
             assert.equal(res.status, 200);
             assert.isArray(res.body);
             assert.isAtMost(res.body.length, 10);
             assert.property(res.body[0], "_id", "");
+            assert.property(res.body[0], "title", "");
             assert.property(res.body[0], "text", "");
             assert.property(res.body[0], "created_on", "");
             assert.property(res.body[0], "bumped_on", "");
