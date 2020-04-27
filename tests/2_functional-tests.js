@@ -6,18 +6,46 @@
  *       (if additional are added, keep them at the very end!)
  */
 
+let mongoose = require("mongoose");
 var chaiHttp = require("chai-http");
 var chai = require("chai");
 var should = require("chai").should();
 var assert = chai.assert;
 var server = require("../server");
 
+const Thread = require("../models/thread");
+const Reply = require("../models/reply");
+
 chai.use(chaiHttp);
 
-suite("Functional Tests", function() {
-  suite("API ROUTING FOR /api/threads/:board", function() {
-    suite("POST", function() {
-      test("post with all required fields", done => {
+suite("Functional Tests", async function() {
+  beforeEach(async done => {
+    await Reply.remove({}, err => {
+      if (err) console.log("error", err);
+      console.log("Replies Removed");
+    });
+    await Thread.remove({}, err => {
+      if (err) console.log("error", err);
+      console.log("Threads Removed");
+    });
+    done();
+  });
+
+  suite("API ROUTING FOR /api/threads/:board", async () => {
+    suite("POST", async function() {
+      test("post with missing required fields", async () => {
+        const { err, res } = await chai
+          .request(server)
+          .post("/api/threads/apitest")
+          .send({
+            title: "apitest thread title",
+            text: "apitest thread text"
+          });
+        assert.equal(res.status, 400);
+      });
+
+      /*
+      test("post with all required fields", async () => {
         chai
           .request(server)
           .post("/api/threads/apitest")
@@ -28,27 +56,12 @@ suite("Functional Tests", function() {
           })
           .end(function(err, res) {
             assert.equal(res.status, 201);
-            done();
           });
       });
 
-      test("post with missing required fields", done => {
-        chai
-          .request(server)
-          .post("/api/threads/apitest")
-          .send({
-            title: "apitest thread title",
-            text: "apitest thread text"
-          })
-          .end(function(err, res) {
-            assert.equal(res.status, 400);
-            done();
-          });
-      });
+*/
     });
-
     suite("GET", function() {
-      
       /*
       test('successful deletion', done => {
         chai
@@ -70,7 +83,7 @@ suite("Functional Tests", function() {
       
       })
       */
-      
+
       test("get an array of threads", done => {
         chai
           .request(server)
@@ -98,7 +111,7 @@ suite("Functional Tests", function() {
             // Replies
             assert.isArray(res.body[0].replies);
             assert.isAtMost(res.body[0].replies.length, 3);
-            if(res.body[0].replies.length > 0){
+            if (res.body[0].replies.length > 0) {
               assert.property(res.body[0].replies[0], "_id", "");
               assert.property(res.body[0].replies[0], "thread_id", "");
               assert.property(res.body[0].replies[0], "created_on", "");
@@ -110,45 +123,46 @@ suite("Functional Tests", function() {
     });
 
     suite("DELETE", function() {
-
-      test('invalid thread', done => {
-       chai.request(server)
-        .delete('/api/threads/apitest')
-        .send({
-          thread_id: '5ea6ccd02a0df93f50487ccf',
-          delete_password: 'wrong password'
-        })
-        .end(function(err, res) {
-          assert.equal(res.status, 400);
-          done();
-        });        
-      });
-      
-      test('incorrect password', done => {
-       chai.request(server)
-        .delete('/api/threads/apitest')
-        .send({
-          thread_id: '5ea6ccd02addf93f50487ccf',
-          delete_password: 'wrong password'
-        })
-        .end(function(err, res) {
-          assert.equal(res.status, 401);
-          done();
-        });        
+      test("invalid thread", done => {
+        chai
+          .request(server)
+          .delete("/api/threads/apitest")
+          .send({
+            thread_id: "5ea6ccd02a0df93f50487ccf",
+            delete_password: "wrong password"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 400);
+            done();
+          });
       });
 
-      test('no password', done => {
-       chai.request(server)
-        .delete('/api/threads/apitest')
-        .send({
-          thread_id: '5ea6ccd02addf93f50487ccf'
-        })
-        .end(function(err, res) {
-          assert.equal(res.status, 401);
-          done();
-        });        
+      test("incorrect password", done => {
+        chai
+          .request(server)
+          .delete("/api/threads/apitest")
+          .send({
+            thread_id: "5ea6ccd02addf93f50487ccf",
+            delete_password: "wrong password"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 401);
+            done();
+          });
       });
 
+      test("no password", done => {
+        chai
+          .request(server)
+          .delete("/api/threads/apitest")
+          .send({
+            thread_id: "5ea6ccd02addf93f50487ccf"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 401);
+            done();
+          });
+      });
     });
 
     suite("PUT", function() {
