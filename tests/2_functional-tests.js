@@ -21,7 +21,7 @@ const { test_threads, test_replies } = require("./test-helper");
 chai.use(chaiHttp);
 
 suite("Functional Tests", function() {
-  let replyThreadId;
+  let replyThreadId, replyId;
   before(done => {
     Reply.remove({}, err => {
       console.log("replies removed");
@@ -38,6 +38,7 @@ suite("Functional Tests", function() {
           Reply.insertMany(replies, (err, replies) => {
             console.log("test replies inserted");
             const reply_ids = replies.map(r => r._id);
+            replyId = reply_ids[0];
             Thread.findByIdAndUpdate(
               replyThreadId,
               { bumped_on: new Date("2021-12-12"), replies: reply_ids },
@@ -125,6 +126,16 @@ suite("Functional Tests", function() {
               assert.property(res.body[0].replies[0], "thread_id", "");
               assert.property(res.body[0].replies[0], "created_on", "");
               assert.property(res.body[0].replies[0], "text", "");
+              assert.notProperty(
+                res.body[0].replies[0],
+                "delete_password",
+                "delete_password should not be present"
+              );
+              assert.notProperty(
+                res.body[0].replies[0],
+                "reported",
+                "reported should not be present"
+              );
             }
             done();
           });
@@ -301,41 +312,123 @@ suite("Functional Tests", function() {
           .get(`/api/replies/apitest?thread_id=${replyThreadId}`)
           .query({})
           .end((err, res) => {
-            console.log(res.body)
             assert.equal(res.status, 200);
+            assert.property(res.body, "_id", "");
+            assert.property(res.body, "title", "");
+            assert.property(res.body, "text", "");
+            assert.property(res.body, "created_on", "");
+            assert.property(res.body, "bumped_on", "");
+            assert.notProperty(
+              res.body,
+              "delete_password",
+              "delete_password should not be present"
+            );
+            assert.notProperty(
+              res.body,
+              "reported",
+              "reported should not be present"
+            );
 
+            // Replies
+            assert.isArray(res.body.replies);
+            if (res.body.replies.length > 0) {
+              assert.property(res.body.replies[0], "_id", "");
+              assert.property(res.body.replies[0], "thread_id", "");
+              assert.property(res.body.replies[0], "created_on", "");
+              assert.property(res.body.replies[0], "text", "");
+              assert.notProperty(
+                res.body.replies[0],
+                "delete_password",
+                "delete_password should not be present"
+              );
+              assert.notProperty(
+                res.body.replies[0],
+                "reported",
+                "reported should not be present"
+              );
+            }
+            done();
+          });
+      });
+      test("invalid id", done => {
+        chai
+          .request(server)
+          .get(`/api/replies/apitest?thread_id=5ea6ccd02afdf93f50487ccf`)
+          .query({})
+          .end((err, res) => {
+            assert.equal(res.status, 400);
             done();
           });
       });
     });
 
     suite("PUT", function() {
-      /*
-       chai.request(server)
-        .put('/api/replies/apitest')
-        .send({
-          reply_id: ''
-        })
-        .end(function(err, res) {
-          assert.equal(res.status, 200);
-          done();
-        });
-        */
+      test("successful update", done => {
+        chai
+          .request(server)
+          .put("/api/replies/apitest")
+          .send({
+            reply_id: replyId
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            done();
+          });
+      });
+      test("invalid id", done => {
+        chai
+          .request(server)
+          .put("/api/replies/apitest")
+          .send({
+            reply_id: "5ea6ccd02afdf93f50487ccf"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 400);
+            done();
+          });
+      });
     });
 
     suite("DELETE", function() {
-      /*
-       chai.request(server)
-        .delete('/api/replies/apitest')
-        .send({
-          reply_id: '',
-          delete_password: ''
-        })
-        .end(function(err, res) {
-          assert.equal(res.status, 200);
-          done();
-        });
-        */
+      test("invalid id", done => {
+        chai
+          .request(server)
+          .delete("/api/replies/apitest")
+          .send({
+            reply_id: "5ea6ccd02afdf93f50487ccf",
+            delete_password: "wrong"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 400);
+            done();
+          });
+      });
+      test("invalid password", done => {
+        chai
+          .request(server)
+          .delete("/api/replies/apitest")
+          .send({
+            reply_id: replyId,
+            delete_password: "wrong"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 401);
+            done();
+          });
+      });
+      test("successful delete", done => {
+        chai
+          .request(server)
+          .delete("/api/replies/apitest")
+          .send({
+            reply_id: replyId,
+            delete_password: "apitest"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 204);
+            done();
+          });
+      });
     });
   });
 });

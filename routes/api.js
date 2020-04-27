@@ -242,7 +242,7 @@ module.exports = function (app) {
         try{
           const updatedReply = await Reply.findByIdAndUpdate(reply_id, { reported: true });
                     
-          if(!updatedReply){
+          if(updatedReply){
             return response.status(200).send('success');
           } else{
             return response.status(400).send('no reply found for id');
@@ -263,14 +263,17 @@ module.exports = function (app) {
     
         const board = request.params.board;
         const reply_id = request.body.reply_id;
+        const delete_password = request.body.delete_password;
     
         if(!board) return response.status(400).send('no board specified')
         else if(!reply_id) return response.status(400).send('no reply id');
+        else if(!delete_password)
     
         try{
           
           const reply = await Reply.findById(reply_id)
           if(!reply) return response.status(400).send('no reply found for id')
+          else if(reply.delete_password !== delete_password) return response.status(401).send('wrong password')
                     
           await reply.remove();
                     
