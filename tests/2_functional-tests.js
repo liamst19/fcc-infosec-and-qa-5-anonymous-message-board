@@ -15,10 +15,31 @@ var server = require("../server");
 
 const Thread = require("../models/thread");
 const Reply = require("../models/reply");
+const { test_threads, test_replies } = require('./test-helper')
 
 chai.use(chaiHttp);
 
 suite("Functional Tests", function() {
+  before(done => {
+    Reply.remove({}, err => {
+      console.log("replies removed");
+      Thread.remove({}, err => {
+        console.log("threads removed");
+        done();
+      });
+    });
+  });
+
+  after(done => {
+    Reply.remove({}, err => {
+      console.log("replies removed");
+      Thread.remove({}, err => {
+        console.log("threads removed");
+        done();
+      });
+    });
+  });
+
   suite("API ROUTING FOR /api/threads/:board", () => {
     suite("POST", function() {
       test("post with missing required fields", () => {
@@ -176,44 +197,30 @@ suite("Functional Tests", function() {
           done();
         });
       });
-      
+
       test("successful update", done => {
-          chai
-            .request(server)
-            .put("/api/threads/apitest")
-            .send({
-              thread_id: thread_id
-            })
-            .end(function(err, res) {
-              assert.equal(res.status, 200);
-              done();
-            });
+        chai
+          .request(server)
+          .put("/api/threads/apitest")
+          .send({
+            thread_id: thread_id
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            done();
+          });
       });
       test("invalid thread id", done => {
-        const newThread = new Thread({
-          board: "apitest",
-          title: "apitest delete thread title",
-          text: "apitest delete thread text",
-          delete_password: "apitest",
-          created_on: new Date(),
-          bumped_on: new Date()
-        });
-        newThread.save((err, thread) => {
-          if (err) {
-            console.log("error", err);
+        chai
+          .request(server)
+          .put("/api/threads/apitest")
+          .send({
+            thread_id: "5ea6ccd02addf93f50487ccf"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 400);
             done();
-          }
-          chai
-            .request(server)
-            .put("/api/threads/apitest")
-            .send({
-              thread_id: "5ea6ccd02addf93f50487ccf"
-            })
-            .end(function(err, res) {
-              assert.equal(res.status, 400);
-              done();
-            });
-        });
+          });
       });
     });
   });
