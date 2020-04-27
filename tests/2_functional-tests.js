@@ -8,6 +8,7 @@
 
 var chaiHttp = require('chai-http');
 var chai = require('chai');
+var should = require('chai').should()
 var assert = chai.assert;
 var server = require('../server');
 
@@ -17,30 +18,35 @@ suite('Functional Tests', function() {
 
   suite('API ROUTING FOR /api/threads/:board', function() {
     
-    suite('POST', function() {      
-      /*
-       chai.request(server)
-        .post('/api/threads/apitest')
-        .send({
-        })
-        .end(function(err, res) {
-          assert.equal(res.status, 201);
-          done();
-        });
-        */
+    suite('POST', function() { 
+      it('should post a new thread', done => {
+        chai.request(server)
+          .post('/api/threads/apitest')
+          .send({
+            title: 'apitest thread title',
+            text: 'apitest thread text',
+            delete_password: 'apitest'
+          })
+          .end(function(err, res) {
+            res.should.have.status(201);
+            done();
+          });
+      });
     });
     
     suite('GET', function() {
-      /*
+      
+      it('should return an array of thraeds', done => {
        chai.request(server)
         .get('/api/threads/apitest')
         .query({})
         .end((err, res) => {
-          assert.equal(res.status, 200);
+          res.should.have.status(200);
           done();
         })
+      });
         
-        */
+        
     });
     
     suite('DELETE', function() {
@@ -85,7 +91,8 @@ suite('Functional Tests', function() {
           thread_id: ''
         })
         .end(function(err, res) {
-          assert.equal(res.status, 201);
+          // assert.equal(res.status, 201);
+          // assert redirect
           done();
         });
         */
