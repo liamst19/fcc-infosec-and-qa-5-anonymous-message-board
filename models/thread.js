@@ -5,7 +5,14 @@ const threadSchema = mongoose.Schema({
   created_on:       { type: Date, required: true },
   bumped_on:        { type: Date, required: true },
   delete_password:  { type: String, required: true },
-  replies:         [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reply' }]  
+  reported:         { type: Boolean, default: false },
+  replies:         [{ type: mongoose.Schema.Types.ObjectId, ref: 'Reply' }]
 });
+
+threadSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    delete returnedObject.__v
+  }
+})
 
 module.exports = mongoose.model('Thread', threadSchema);
