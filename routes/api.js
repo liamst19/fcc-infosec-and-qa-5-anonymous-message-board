@@ -27,10 +27,16 @@ module.exports = function (app) {
        and delete_passwords fields will not be sent.
   */
      .get(async (request, response, next) => {
+        const threadLimit = 10;
+        const replyLimit = 3;
         try{
           const threads = await Thread
-                  .find()
-                  .populate('replies')
+                  .find({}, '-delete_passwords' ,{ replies: { $slice: -1 * replyLimit }})
+                  .sort({ bumped_on: -1 })
+                  .limit(threadLimit)
+                  .populate('replies');
+          
+          response.json(threads);
         } catch(e){
           console.log('ERROR GET /api/threads/:board', e)
           next(e)          
