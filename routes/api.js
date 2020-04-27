@@ -16,7 +16,10 @@ const Reply    = require('../models/reply');
 
 module.exports = function (app) {
   
-  app.route('/api/threads/:board');
+  app.route('/api/threads/:board')
+     .post(async (req, res) => {
+      const body = request.body
+    })
     
   app.route('/api/replies/:board');
 
