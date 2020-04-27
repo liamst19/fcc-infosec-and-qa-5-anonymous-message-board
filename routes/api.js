@@ -29,13 +29,18 @@ module.exports = function (app) {
      .get(async (request, response, next) => {
         const threadLimit = 10;
         const replyLimit = 3;
+    
+        const board = request.params.board;
+        if(!board) return response.status(400).send('no board specified')
+    
         try{
           const threads = await Thread
-                  .find({}, '-delete_passwords' ,{ replies: { $slice: -1 * replyLimit }})
+                  .find({ board }, '-delete_password -reported' ,{ replies: { $slice: -1 * replyLimit }})
                   .sort({ bumped_on: -1 })
                   .limit(threadLimit)
-                  .populate('replies');
+                  .populate({path: 'replies', select: '-delete_password -reported'});
           
+          console.log('threads', threads)
           response.json(threads);
         } catch(e){
           console.log('ERROR GET /api/threads/:board', e)
@@ -53,10 +58,15 @@ module.exports = function (app) {
         & replies(array).
   */
      .post(async (request, response, next) => {
+    
+        const board = request.params.board;
+        if(!board) return response.status(400).send('no board specified')
+    
         const body = request.body;
 
         try{
           const newThread = new Thread({
+            board:            board,
             title:            body.title,
             text:             body.text,
             delete_password:  body.delete_password, // hash?
@@ -64,6 +74,8 @@ module.exports = function (app) {
             bumped_on:        new Date()
           });
           const savedThread = await newThread.save();
+          
+          console.log('thread posted', savedThread)
           response.status(201).json(savedThread);
         } catch (e){
           console.log('ERROR POST /api/threads/:board', e)
@@ -77,6 +89,10 @@ module.exports = function (app) {
        along the thread_id. (Text response will be 'success')
   */
      .put(async (request, response, next) => {
+    
+        const board = request.params.board;
+        if(!board) return response.status(400).send('no board specified')
+    
         try{
           
         } catch(e){
@@ -92,6 +108,10 @@ module.exports = function (app) {
        or 'success')
   */
      .delete(async (request, response, next) => {
+    
+        const board = request.params.board;
+        if(!board) return response.status(400).send('no board specified')
+    
         try{
           
         } catch(e){
