@@ -14,7 +14,11 @@ var app = express();
 
 // Helmet
 app.use(helmet({
-  
+  frameguard: {
+    dnsPrefetchControl: { allow: false },
+    action: 'sameorigin',
+    referrerPolicy: { policy: 'same-origin' }
+  }
 }));
 
 app.use('/public', express.static(process.cwd() + '/public'));
