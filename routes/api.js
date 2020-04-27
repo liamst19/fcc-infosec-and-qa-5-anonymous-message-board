@@ -99,7 +99,7 @@ module.exports = function (app) {
         try{
           const updatedThread = await Thread.findByIdAndUpdate(thread_id, { reported: true });
           
-          if(!updatedThread){
+          if(updatedThread){
             return response.status(200).send('success');
           } else{
             return response.status(400).send('no thread found for id')
