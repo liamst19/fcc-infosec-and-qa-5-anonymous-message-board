@@ -53,6 +53,20 @@ suite("Functional Tests", function() {
       test('successful deletion', done => {
         chai
           .request(server)
+          .post("/api/threads/apitest")
+          .send({
+            title: "apitest delete test thread title",
+            text: "apitest delete test thread text",
+            delete_password: "apitest"
+          })
+          .then(res => {
+            const id = res.body._id;
+            expect(id)
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 201);
+            done();
+          });
       
       })
       */
