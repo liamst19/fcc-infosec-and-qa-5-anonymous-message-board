@@ -40,7 +40,6 @@ module.exports = function (app) {
                   .limit(threadLimit)
                   .populate({path: 'replies', select: '-delete_password -reported'});
           
-          console.log('threads', threads)
           response.json(threads);
         } catch(e){
           console.log('ERROR GET /api/threads/:board', e)
@@ -75,7 +74,6 @@ module.exports = function (app) {
           });
           const savedThread = await newThread.save();
           
-          console.log('thread posted', savedThread)
           response.status(201).json(savedThread);
         } catch (e){
           console.log('ERROR POST /api/threads/:board', e)
@@ -192,7 +190,7 @@ module.exports = function (app) {
           
           const thread = await Thread.findById(thread_id);
           if(!thread) return response.status(400).send('no thread found for id');
-          console.log('thread for reply', thread)
+          
           const newReply = new Reply({
             thread_id:        body.thread_id,
             created_on:       new Date(),
