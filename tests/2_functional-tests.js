@@ -48,7 +48,16 @@ suite("Functional Tests", function() {
     });
 
     suite("GET", function() {
-      test("should return an array of threads", done => {
+      
+      /*
+      test('successful deletion', done => {
+        chai
+          .request(server)
+      
+      })
+      */
+      
+      test("get an array of threads", done => {
         chai
           .request(server)
           .get("/api/threads/apitest")
@@ -87,22 +96,50 @@ suite("Functional Tests", function() {
     });
 
     suite("DELETE", function() {
-      /*
+
+      test('invalid thread', done => {
        chai.request(server)
         .delete('/api/threads/apitest')
         .send({
-          thread_id: '',
-          delete_password: ''
+          thread_id: '5ea6ccd02a0df93f50487ccf',
+          delete_password: 'wrong password'
         })
         .end(function(err, res) {
-          assert.equal(res.status, 200);
+          assert.equal(res.status, 400);
           done();
         });        
-        */
+      });
+      
+      test('incorrect password', done => {
+       chai.request(server)
+        .delete('/api/threads/apitest')
+        .send({
+          thread_id: '5ea6ccd02addf93f50487ccf',
+          delete_password: 'wrong password'
+        })
+        .end(function(err, res) {
+          assert.equal(res.status, 401);
+          done();
+        });        
+      });
+
+      test('no password', done => {
+       chai.request(server)
+        .delete('/api/threads/apitest')
+        .send({
+          thread_id: '5ea6ccd02addf93f50487ccf'
+        })
+        .end(function(err, res) {
+          assert.equal(res.status, 401);
+          done();
+        });        
+      });
+
     });
 
     suite("PUT", function() {
       /*
+      test('')
        chai.request(server)
         .put('/api/threads/apitest')
         .send({

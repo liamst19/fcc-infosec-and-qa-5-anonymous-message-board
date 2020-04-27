@@ -119,12 +119,17 @@ module.exports = function (app) {
      .delete(async (request, response, next) => {
     
         const thread_id = request.body.thread_id;
-        if(!thread_id) return response.status(400).send('no thread id');
+        const delete_password = request.body.delete_password;
+        if(!thread_id) return response.status(400).send('no thread id')
+        else if(!delete_password) return response.status(401).send('no password')
     
         try{
           
           const thread = await Thread.findById(thread_id)
           if(!thread) return response.status(400).send('no thread found for id')
+          else if(thread.delete_password !== delete_password){
+             return response.status(401).send('incorrect password')
+          }
           
           await thread.remove();
           
