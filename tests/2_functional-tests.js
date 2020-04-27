@@ -11,11 +11,12 @@ var chaiHttp = require("chai-http");
 var chai = require("chai");
 var should = require("chai").should();
 var assert = chai.assert;
+var expect = chai.expect;
 var server = require("../server");
 
 const Thread = require("../models/thread");
 const Reply = require("../models/reply");
-const { test_threads, test_replies } = require('./test-helper')
+const { test_threads, test_replies } = require("./test-helper");
 
 chai.use(chaiHttp);
 
@@ -27,17 +28,26 @@ suite("Functional Tests", function() {
       Thread.remove({}, err => {
         console.log("threads removed");
         Thread.insertMany(test_threads, (err, threads) => {
-          console.log('test threads inserted')
+          console.log("test threads inserted");
           replyThreadId = threads[0]._id;
-          const replies = test_replies.map(r => ({...r, thread_id: replyThreadId, created_on: new Date('2021-12-12')}))
+          const replies = test_replies.map(r => ({
+            ...r,
+            thread_id: replyThreadId,
+            created_on: new Date("2021-12-12")
+          }));
           Reply.insertMany(replies, (err, replies) => {
-            console.log('test replies inserted')
+            console.log("test replies inserted");
             const reply_ids = replies.map(r => r._id);
-            Thread.findByIdAndUpdate(replyThreadId, { bumped_on: new Date('2021-12-12'), replies: reply_ids }, { new: true }, (err, thread) => {
-              done();
-            })
-          })
-        })
+            Thread.findByIdAndUpdate(
+              replyThreadId,
+              { bumped_on: new Date("2021-12-12"), replies: reply_ids },
+              { new: true },
+              (err, thread) => {
+                done();
+              }
+            );
+          });
+        });
       });
     });
   });
@@ -110,7 +120,7 @@ suite("Functional Tests", function() {
             // Replies
             assert.isArray(res.body[0].replies);
             assert.isAtMost(res.body[0].replies.length, 3);
-            if (res.body[0].replies.length > 0) {         
+            if (res.body[0].replies.length > 0) {
               assert.property(res.body[0].replies[0], "_id", "");
               assert.property(res.body[0].replies[0], "thread_id", "");
               assert.property(res.body[0].replies[0], "created_on", "");
@@ -240,27 +250,63 @@ suite("Functional Tests", function() {
 
   suite("API ROUTING FOR /api/replies/:board", function() {
     suite("POST", function() {
-      /*
-      test('successful post of a reply', )
-       chai.request(server)
-        .post('/api/replies/apitest')
-        .send({
-          thread_id: ''
-        })
-        .end(function(err, res) {
-          // assert.equal(res.status, 201);
-          // assert redirect
-          done();
-        });
-        */
+      test("successful post of a reply", done => {
+        chai
+          .request(server)
+          .post("/api/replies/apitest")
+          .send({
+            thread_id: replyThreadId,
+            text: "thread reply #1",
+            delete_password: "apitest"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 200);
+            expect(res).to.redirect;
+            done();
+          });
+      });
+      test("invalid id", done => {
+        chai
+          .request(server)
+          .post("/api/replies/apitest")
+          .send({
+            thread_id: "5ea6ccd02afdf93f50487ccf",
+            text: "thread reply #1",
+            delete_password: "apitest"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 400);
+            done();
+          });
+      });
+      test("incomplete reply info", done => {
+        chai
+          .request(server)
+          .post("/api/replies/apitest")
+          .send({
+            thread_id: "5ea6ccd02afdf93f50487ccf",
+            delete_password: "apitest"
+          })
+          .end(function(err, res) {
+            assert.equal(res.status, 400);
+            done();
+          });
+      });
     });
 
     suite("GET", function() {
-      /*
-       chai.request(server)
-        .get('/api/replies/apitest?thread_id=')
-        
-        */
+      test("successful get", done => {
+        chai
+          .request(server)
+          .get(`/api/replies/apitest?thread_id=${replyThreadId}`)
+          .query({})
+          .end((err, res) => {
+            console.log(res.body)
+            assert.equal(res.status, 200);
+
+            done();
+          });
+      });
     });
 
     suite("PUT", function() {

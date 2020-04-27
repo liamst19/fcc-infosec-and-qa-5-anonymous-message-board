@@ -194,6 +194,10 @@ module.exports = function (app) {
         else if(!thread_id) return response.status(400).send('no thread id');
     
         const body = request.body;
+    
+        if(!body.thread_id || !body.text || !body.delete_password){
+          return response.status(400).send('incomplete reply info')
+        }
 
         try{
           
@@ -214,7 +218,7 @@ module.exports = function (app) {
           };
           const updatedThread = await Thread.findByIdAndUpdate(thread_id, threadUpdateData, { new: true })
           
-          response.redirect(`/b/${board}/${thread_id}`);
+          response.status(200).redirect(`/b/${board}/${thread_id}`);
           
         } catch (e){
           console.log('ERROR /api/threads/:board', e)
