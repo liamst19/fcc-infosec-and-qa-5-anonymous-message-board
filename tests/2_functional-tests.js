@@ -25,7 +25,17 @@ suite("Functional Tests", function() {
       console.log("replies removed");
       Thread.remove({}, err => {
         console.log("threads removed");
-        done();
+        Thread.insertMany(test_threads, (err, threads) => {
+          console.log('test threads inserted')
+          const replies = threads.reduce((arr, t) => {
+            return [...arr, ...test_replies.map(r => ({...r, thread_id: t._id}))]
+          }, [])
+          console.log(replies.reduce((a, r) => a.some(p => p === r.thread_id) ? a : a.concat(r.thread_id)))
+          Reply.insertMany(replies, (err, replies) => {
+            console.log('test replies inserted')
+            done();
+          })
+        })
       });
     });
   });
@@ -76,6 +86,7 @@ suite("Functional Tests", function() {
           .get("/api/threads/apitest")
           .query({})
           .end((err, res) => {
+          console.log('thread', res.body[0])
             assert.equal(res.status, 200);
             assert.isArray(res.body);
             assert.isAtMost(res.body.length, 10);

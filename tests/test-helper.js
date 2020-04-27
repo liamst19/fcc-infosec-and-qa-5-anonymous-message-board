@@ -149,7 +149,7 @@ const test_replies = [
   },
   {
     created_on: new Date(),
-    text: 'thread reply #6,
+    text: 'thread reply #6',
     delete_password: 'apitest' // hash?
   },
   {
@@ -164,7 +164,7 @@ const test_replies = [
   },
   {
     created_on: new Date(),
-    text: 'thread reply #9,
+    text: 'thread reply #9',
     delete_password: 'apitest' // hash?
   },
   {
