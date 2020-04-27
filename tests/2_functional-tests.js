@@ -20,6 +20,7 @@ const { test_threads, test_replies } = require('./test-helper')
 chai.use(chaiHttp);
 
 suite("Functional Tests", function() {
+  let replyThreadId;
   before(done => {
     Reply.remove({}, err => {
       console.log("replies removed");
@@ -27,12 +28,12 @@ suite("Functional Tests", function() {
         console.log("threads removed");
         Thread.insertMany(test_threads, (err, threads) => {
           console.log('test threads inserted')
-          const replyThreadId = threads[0]._id;
-          const replies = test_replies.map(r => ({...r, thread_id: replyThreadId, created_on: Date.now()}))
+          replyThreadId = threads[0]._id;
+          const replies = test_replies.map(r => ({...r, thread_id: replyThreadId, created_on: new Date('2021-12-12')}))
           Reply.insertMany(replies, (err, replies) => {
             console.log('test replies inserted')
             const reply_ids = replies.map(r => r._id);
-            Thread.findByIdAndUpdate(replyThreadId, { bumped_on: Date.now(), replies: reply_ids }, { new: true }, (err, thread) => {
+            Thread.findByIdAndUpdate(replyThreadId, { bumped_on: new Date('2021-12-12'), replies: reply_ids }, { new: true }, (err, thread) => {
               done();
             })
           })
@@ -87,15 +88,6 @@ suite("Functional Tests", function() {
           .get("/api/threads/apitest")
           .query({})
           .end((err, res) => {
-          
-          /*
-            console.log('threads', 
-                        res.body.map(t => ({
-              id: t._id,
-              title: t.title,
-              dt: t.bumped_on, 
-              cnt: t.replies.length}))) */
-          
             assert.equal(res.status, 200);
             assert.isArray(res.body);
             assert.isAtMost(res.body.length, 10);
@@ -118,8 +110,7 @@ suite("Functional Tests", function() {
             // Replies
             assert.isArray(res.body[0].replies);
             assert.isAtMost(res.body[0].replies.length, 3);
-            if (res.body[0].replies.length > 0) {              
-              console.log('thread', res.body[0].replies)
+            if (res.body[0].replies.length > 0) {         
               assert.property(res.body[0].replies[0], "_id", "");
               assert.property(res.body[0].replies[0], "thread_id", "");
               assert.property(res.body[0].replies[0], "created_on", "");
@@ -250,6 +241,7 @@ suite("Functional Tests", function() {
   suite("API ROUTING FOR /api/replies/:board", function() {
     suite("POST", function() {
       /*
+      test('successful post of a reply', )
        chai.request(server)
         .post('/api/replies/apitest')
         .send({

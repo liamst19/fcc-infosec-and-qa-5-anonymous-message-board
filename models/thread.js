@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const threadSchema = mongoose.Schema({
+  title:            { type: String, require: true },
   board:            { type: String, required: true },
   text:             { type: String, required: true },
   created_on:       { type: Date, required: true },
