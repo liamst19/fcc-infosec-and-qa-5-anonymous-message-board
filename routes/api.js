@@ -154,7 +154,7 @@ module.exports = function (app) {
     
         try{
           
-          const thread = Thread
+          const thread = await Thread
                             .findById(thread_id, '-delete_password -reported')
                             .populate({
                                 path: 'replies', 
@@ -190,9 +190,9 @@ module.exports = function (app) {
 
         try{
           
-          const thread = Thread.findById(thread_id);
+          const thread = await Thread.findById(thread_id);
           if(!thread) return response.status(400).send('no thread found for id');
-          
+          console.log('thread for reply', thread)
           const newReply = new Reply({
             thread_id:        body.thread_id,
             created_on:       new Date(),
@@ -203,7 +203,7 @@ module.exports = function (app) {
           
           const threadUpdateData = {
             bumped_on: new Date(),
-            replies: thread.replies.concat(savedReply._id)
+            replies: [...thread.replies, savedReply._id]
           };
           const updatedThread = await Thread.findByIdAndUpdate(thread_id, threadUpdateData, { new: true })
           
