@@ -18,34 +18,23 @@ const Reply = require("../models/reply");
 
 chai.use(chaiHttp);
 
-suite("Functional Tests", async function() {
-  beforeEach(async done => {
-    await Reply.remove({}, err => {
-      if (err) console.log("error", err);
-      console.log("Replies Removed");
-    });
-    await Thread.remove({}, err => {
-      if (err) console.log("error", err);
-      console.log("Threads Removed");
-    });
-    done();
-  });
-
-  suite("API ROUTING FOR /api/threads/:board", async () => {
-    suite("POST", async function() {
-      test("post with missing required fields", async () => {
-        const { err, res } = await chai
+suite("Functional Tests", function() {
+  suite("API ROUTING FOR /api/threads/:board", () => {
+    suite("POST", function() {
+      test("post with missing required fields", () => {
+        chai
           .request(server)
           .post("/api/threads/apitest")
           .send({
             title: "apitest thread title",
             text: "apitest thread text"
+          })
+          .end((err, res) => {
+            assert.equal(res.status, 400);
           });
-        assert.equal(res.status, 400);
       });
 
-      /*
-      test("post with all required fields", async () => {
+      test("post with all required fields", () => {
         chai
           .request(server)
           .post("/api/threads/apitest")
@@ -58,32 +47,8 @@ suite("Functional Tests", async function() {
             assert.equal(res.status, 201);
           });
       });
-
-*/
     });
     suite("GET", function() {
-      /*
-      test('successful deletion', done => {
-        chai
-          .request(server)
-          .post("/api/threads/apitest")
-          .send({
-            title: "apitest delete test thread title",
-            text: "apitest delete test thread text",
-            delete_password: "apitest"
-          })
-          .then(res => {
-            const id = res.body._id;
-            expect(id)
-          })
-          .end(function(err, res) {
-            assert.equal(res.status, 201);
-            done();
-          });
-      
-      })
-      */
-
       test("get an array of threads", done => {
         chai
           .request(server)
@@ -124,31 +89,58 @@ suite("Functional Tests", async function() {
 
     suite("DELETE", function() {
       test("invalid thread", done => {
-        chai
-          .request(server)
-          .delete("/api/threads/apitest")
-          .send({
-            thread_id: "5ea6ccd02a0df93f50487ccf",
-            delete_password: "wrong password"
-          })
-          .end(function(err, res) {
-            assert.equal(res.status, 400);
+        const newThread = new Thread({
+          board: "apitest",
+          title: "apitest delete thread title",
+          text: "apitest delete thread text",
+          delete_password: "apitest",
+          created_on: new Date(),
+          bumped_on: new Date()
+        });
+        newThread.save((err, thread) => {
+          if (err) {
+            console.log("error creating thread", err);
             done();
-          });
+          }
+
+          chai
+            .request(server)
+            .delete("/api/threads/apitest")
+            .send({
+              thread_id: "5ea6ccd02addf93f50487ccf",
+              delete_password: "wrong password"
+            })
+            .end(function(err, res) {
+              assert.equal(res.status, 400);
+              done();
+            });
+        });
       });
 
       test("incorrect password", done => {
-        chai
-          .request(server)
-          .delete("/api/threads/apitest")
-          .send({
-            thread_id: "5ea6ccd02addf93f50487ccf",
-            delete_password: "wrong password"
-          })
-          .end(function(err, res) {
-            assert.equal(res.status, 401);
+        const newThread = new Thread({
+          title: "apitest delete thread title",
+          text: "apitest delete thread text",
+          delete_password: "apitest"
+        });
+        newThread.save((err, thread) => {
+          if (err) {
+            console.log("error", err);
             done();
-          });
+          }
+
+          chai
+            .request(server)
+            .delete("/api/threads/apitest")
+            .send({
+              thread_id: thread._id,
+              delete_password: "wrong password"
+            })
+            .end(function(err, res) {
+              assert.equal(res.status, 401);
+              done();
+            });
+        });
       });
 
       test("no password", done => {
