@@ -29,7 +29,7 @@ module.exports = function (app) {
      .get(async (request, response, next) => {
         const threadLimit = 10;
         const replyLimit = 3;
-    
+        console.log('get', {board: request.params.board})
         const board = request.params.board;
         if(!board) return response.status(400).send('no board specified')
     

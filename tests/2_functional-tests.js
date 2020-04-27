@@ -19,7 +19,8 @@ suite('Functional Tests', function() {
   suite('API ROUTING FOR /api/threads/:board', function() {
     
     suite('POST', function() { 
-      it('should post a new thread', done => {
+      
+      test('should post a new thread', done => {
         chai.request(server)
           .post('/api/threads/apitest')
           .send({
@@ -28,24 +29,32 @@ suite('Functional Tests', function() {
             delete_password: 'apitest'
           })
           .end(function(err, res) {
-            res.should.have.status(201);
+            assert.equal(res.status, 201);
             done();
           });
       });
+      
     });
     
     suite('GET', function() {
       
-      it('should return an array of thraeds', done => {
+      test('should return an array of threads', done => {
        chai.request(server)
         .get('/api/threads/apitest')
         .query({})
         .end((err, res) => {
-          res.should.have.status(200);
+          assert.equal(res.status, 200);
+          assert.isArray(res.body);
+          assert.isArray(res.body[0].replies);
+          assert.property(res.body[0], '_id', '');
+          assert.property(res.body[0], 'text', '');
+          assert.property(res.body[0], 'created_on', '');
+          assert.property(res.body[0], 'bumped_on', '');
+          assert.notProperty(res.body[0], 'delete_password', '');
+          assert.notProperty(res.body[0], 'reported', '');
           done();
-        })
-      });
-        
+        });
+      });        
         
     });
     
