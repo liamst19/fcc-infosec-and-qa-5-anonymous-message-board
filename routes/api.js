@@ -119,9 +119,15 @@ module.exports = function (app) {
         if(!thread_id) return response.status(400).send('no thread id');
     
         try{
-          Thread.findByIdAndDelete(thread_id)
-          Reply.deleteMany({ thread_id })
           
+          const thread = await Thread.findById(thread_id)
+          if(!thread) return response.status(400).send('no thread found for id')
+          
+          await thread.remove();
+          
+          await Reply.deleteMany({ thread_id });
+          
+          response.status(204).end();
         } catch(e){
           console.log('ERROR DELETE /api/threads/:board', e)
           next(e)          
@@ -139,8 +145,24 @@ module.exports = function (app) {
        the same fields.
   */
      .get(async (request, response, next) => {
+    
+        const board = request.params.board;
+        const thread_id = request.query.thread_id;
+    
+        if(!board) return response.status(400).send('no board specified')
+        else if(!thread_id) return response.status(400).send('no thread id');
+    
         try{
           
+          const thread = Thread
+                            .findById(thread_id, '-delete_password -reported')
+                            .populate({
+                                path: 'replies', 
+                                select: '-delete_password -reported'
+                              });
+          if(!thread) return response.status(400).send('no thread found for id')
+          
+          return response.json(thread)
         } catch(e){
           console.log('ERROR GET /api/replies/:board', e)
           next(e)          
@@ -157,16 +179,33 @@ module.exports = function (app) {
        reported.
   */
      .post(async (request, response, next) => {
+    
+        const board = request.params.board;
+        const thread_id = request.query.thread_id;
+    
+        if(!board) return response.status(400).send('no board specified')
+        else if(!thread_id) return response.status(400).send('no thread id');
+    
         const body = request.body;
 
         try{
+          
+          const thread = Thread.findById(thread_id);
+          if(!thread) return response.status(400).send('no thread found for id');
+          
           const newReply = new Reply({
             thread_id:        body.thread_id,
             created_on:       new Date(),
             text:             body.text,
             delete_password:  body.delete_password // hash?
           });
-          //const savedReply = await newReply.save();
+          const savedReply = await newReply.save();
+          
+          const updateThreadData = {
+            
+          }
+          const updatedThread = Thread.findByIdAndUpdate(thread_id, {})
+          
           //response.status(201).json(savedReply);
         } catch (e){
           console.log('ERROR /api/threads/:board', e)
