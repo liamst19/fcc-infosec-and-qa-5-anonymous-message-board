@@ -90,11 +90,17 @@ module.exports = function (app) {
   */
      .put(async (request, response, next) => {
     
-        const board = request.params.board;
-        if(!board) return response.status(400).send('no board specified')
+        const thread_id = request.body.thread_id;
+        if(!thread_id) return response.status(400).send('no thread id');
     
         try{
+          const updatedThread = await Thread.findByIdAndUpdate(thread_id, { reported: true });
           
+          if(!updatedThread){
+            return response.status(200).send('success');
+          } else{
+            return response.status(400).send('no thread found for id')
+          }          
         } catch(e){
           console.log('ERROR PUT /api/threads/:board', e)
           next(e)          
@@ -109,10 +115,12 @@ module.exports = function (app) {
   */
      .delete(async (request, response, next) => {
     
-        const board = request.params.board;
-        if(!board) return response.status(400).send('no board specified')
+        const thread_id = request.body.thread_id;
+        if(!thread_id) return response.status(400).send('no thread id');
     
         try{
+          Thread.findByIdAndDelete(thread_id)
+          Reply.deleteMany({ thread_id })
           
         } catch(e){
           console.log('ERROR DELETE /api/threads/:board', e)
@@ -153,7 +161,7 @@ module.exports = function (app) {
 
         try{
           const newReply = new Reply({
-            threadId:         body.threadid,
+            thread_id:        body.thread_id,
             created_on:       new Date(),
             text:             body.text,
             delete_password:  body.delete_password // hash?
