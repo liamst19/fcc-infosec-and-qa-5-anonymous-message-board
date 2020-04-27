@@ -181,7 +181,7 @@ module.exports = function (app) {
      .post(async (request, response, next) => {
     
         const board = request.params.board;
-        const thread_id = request.query.thread_id;
+        const thread_id = request.body.thread_id;
     
         if(!board) return response.status(400).send('no board specified')
         else if(!thread_id) return response.status(400).send('no thread id');
@@ -201,12 +201,14 @@ module.exports = function (app) {
           });
           const savedReply = await newReply.save();
           
-          const updateThreadData = {
-            
-          }
-          const updatedThread = Thread.findByIdAndUpdate(thread_id, {})
+          const threadUpdateData = {
+            bumped_on: new Date(),
+            replies: thread.replies.concat(savedReply._id)
+          };
+          const updatedThread = await Thread.findByIdAndUpdate(thread_id, threadUpdateData, { new: true })
           
-          //response.status(201).json(savedReply);
+          response.redirect(`/b/${board}/${thread_id}`);
+          
         } catch (e){
           console.log('ERROR /api/threads/:board', e)
           next(e)
@@ -219,8 +221,21 @@ module.exports = function (app) {
       thread_id & reply_id. (Text response will be 'success')
   */
      .put(async (request, response, next) => {
+    
+        const board = request.params.board;
+        const reply_id = request.body.reply_id;
+    
+        if(!board) return response.status(400).send('no board specified')
+        else if(!reply_id) return response.status(400).send('no reply id');
+    
         try{
-          
+          const updatedReply = await Reply.findByIdAndUpdate(reply_id, { reported: true });
+                    
+          if(!updatedReply){
+            return response.status(200).send('success');
+          } else{
+            return response.status(400).send('no reply found for id');
+          }          
         } catch(e){
           console.log('ERROR PUT /api/replies/:board', e)
           next(e)          
@@ -234,8 +249,21 @@ module.exports = function (app) {
        response will be 'incorrect password' or 'success')
   */
      .delete(async (request, response, next) => {
+    
+        const board = request.params.board;
+        const reply_id = request.body.reply_id;
+    
+        if(!board) return response.status(400).send('no board specified')
+        else if(!reply_id) return response.status(400).send('no reply id');
+    
         try{
           
+          const reply = await Reply.findById(reply_id)
+          if(!reply) return response.status(400).send('no reply found for id')
+                    
+          await reply.remove();
+                    
+          response.status(204).end();
         } catch(e){
           console.log('ERROR DELETE /api/replies/:board', e)
           next(e)          
